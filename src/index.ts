@@ -3,7 +3,7 @@ import { basicAuth } from "hono/basic-auth";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { env } from "@/env";
-import { logger } from "hono/dist/types/middleware/logger";
+import { logger } from "hono/logger";
 
 const app = new Hono();
 
