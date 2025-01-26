@@ -3,6 +3,7 @@ import { basicAuth } from "hono/basic-auth";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { env } from "@/env";
+import { logger } from "hono/dist/types/middleware/logger";
 
 const app = new Hono();
 
@@ -14,6 +15,7 @@ app.get("/ping", (c) => c.text("pong"));
 
 app.all(
   "/proxy",
+  logger(),
   basicAuth({
     username: env.AUTH_USERNAME,
     password: env.AUTH_PASSWORD,
