@@ -1,7 +1,8 @@
 {
   "name": "bun-proxy",
   "scripts": {
-    "dev": "bun run --hot src/index.ts"
+    "dev": "bun run --hot src/index.ts",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@hono/zod-validator": "^0.4.2",
@@ -9,6 +10,7 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "prettier": "^3.4.2"
   }
 }

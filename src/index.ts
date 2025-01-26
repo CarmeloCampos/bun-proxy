@@ -24,24 +24,68 @@ app.all(
     if (!targetUrl) {
       return c.json({ error: "Target-URL header is missing" }, 400);
     }
+
     const body = await c.req.text();
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
 
     try {
       const response = await fetch(targetUrl, {
         method: c.req.method,
         body: c.req.method !== "GET" ? body : undefined,
+        signal: controller.signal,
       });
 
-      const data = await response.text();
-      const contentType = response.headers.get("content-type");
+      const bodyResponse = response.body;
+      if (!bodyResponse) {
+        return c.json(
+          { error: "No se pudo leer el cuerpo de la respuesta" },
+          500,
+        );
+      }
+      const reader = bodyResponse.getReader();
 
-      c.header("Content-Type", contentType ?? "text/plain");
+      const chunks = [];
+      let totalBytes = 0;
+      const maxBytes = 1024 * 1024;
 
-      return c.body(data);
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        chunks.push(value);
+        totalBytes += value.length;
+
+        if (totalBytes >= maxBytes) {
+          break;
+        }
+      }
+
+      const combined = new Uint8Array(totalBytes);
+      let offset = 0;
+      for (const chunk of chunks) {
+        combined.set(chunk, offset);
+        offset += chunk.length;
+      }
+
+      const contentType =
+        response.headers.get("content-type") || "application/octet-stream";
+
+      return new Response(combined, {
+        headers: {
+          "Content-Type": contentType,
+        },
+      });
     } catch (error) {
+      if (error instanceof Error && error.name === "AbortError") {
+        return c.json({ error: "Tiempo de espera agotado" }, 504);
+      }
       return c.json({ error: "Proxy error", details: error }, 500);
+    } finally {
+      clearTimeout(timeout);
     }
-  }
+  },
 );
 
 export default app;

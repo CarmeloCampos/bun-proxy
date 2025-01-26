@@ -1,0 +1,12 @@
+# Ignore artifacts:
+build
+coverage
+package.json
+package-lock.json
+pnpm-lock.yaml
+node_modules/
+/public/js/
+/src/assets/css/
+/worker-configuration.d.ts
+/.wrangler/
+/wrangler.json
