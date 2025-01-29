@@ -1,5 +1,5 @@
 FROM oven/bun:1
-
+RUN apt-get install -y curl
 WORKDIR /home/node/app
 
 COPY package.json bun.lock ./
